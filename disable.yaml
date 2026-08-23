@@ -1,0 +1,10 @@
+---
+- name: Stop and disable the Nginx service
+  hosts: deb
+  become: true  # Allows sudo privileges to change system states
+  tasks:
+    - name: Stop Nginx and disable autostart
+      ansible.builtin.service:
+        name: nginx
+        state: stopped
+        enabled: false

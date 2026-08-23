@@ -1,0 +1,11 @@
+---
+  - name: Install ngnix
+    hosts: deb
+    become: true
+
+    tasks:
+      - name: Install ngnix using apt
+        apt:
+          name: nginx
+          state: present
+          update_cache: yes

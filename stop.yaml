@@ -1,0 +1,8 @@
+---
+- name: Stop the ngnix service
+  hosts: deb
+  tasks:
+    - name: Stop the service
+      ansible.builtin.service:
+        name: nginx
+        state: stopped

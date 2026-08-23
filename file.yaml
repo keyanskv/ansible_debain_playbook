@@ -1,0 +1,12 @@
+---
+    - name: create new file
+      hosts: deb
+      tasks:
+      - name: If nano is available then create an new file
+        ansible.builtin.copy:
+           dest: /home/keyan/file.txt
+           content: Hello World ! by Ansible
+           mode: '0644'
+           owner: keyan
+           group: keyan
+

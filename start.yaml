@@ -1,0 +1,9 @@
+---
+- name: check the service is running or start the service
+  hosts: deb
+  tasks:
+    - name: Start the service
+      ansible.builtin.service:
+        name: nginx
+        state: started
+

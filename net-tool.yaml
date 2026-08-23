@@ -1,0 +1,11 @@
+---
+  - name: Install net-tools
+    hosts: deb
+    become: true
+
+    tasks:
+      - name: Install net-tools using apt
+        apt:
+          name: net-tools
+          state: present
+          update_cache: yes
