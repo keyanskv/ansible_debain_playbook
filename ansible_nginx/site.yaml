@@ -1,0 +1,86 @@
+---
+- name: Configure Nginx static website
+  hosts: web
+  become: true
+
+  tasks:
+
+    - name: Update apt package cache
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: Install Nginx
+      ansible.builtin.apt:
+        name: nginx
+        state: present
+
+    - name: Create website directory
+      ansible.builtin.file:
+        path: /var/www/ansible-site
+        state: directory
+        owner: www-data
+        group: www-data
+        mode: "0755"
+
+    - name: Deploy website
+      ansible.builtin.template:
+        src: templates/index.html.j2
+        dest: /var/www/ansible-site/index.html
+        owner: www-data
+        group: www-data
+        mode: "0644"
+      notify: Restart Nginx
+
+    - name: Configure Nginx virtual host
+      ansible.builtin.copy:
+        dest: /etc/nginx/sites-available/ansible-site
+        owner: root
+        group: root
+        mode: "0644"
+        content: |
+          server {
+              listen 80;
+              listen [::]:80;
+
+              server_name _;
+
+              root /var/www/ansible-site;
+              index index.html;
+
+              location / {
+                  try_files $uri $uri/ =404;
+              }
+          }
+      notify: Restart Nginx
+
+    - name: Enable website
+      ansible.builtin.file:
+        src: /etc/nginx/sites-available/ansible-site
+        dest: /etc/nginx/sites-enabled/ansible-site
+        state: link
+      notify: Restart Nginx
+
+    - name: Disable default Nginx website
+      ansible.builtin.file:
+        path: /etc/nginx/sites-enabled/default
+        state: absent
+      notify: Restart Nginx
+
+    - name: Ensure Nginx is enabled and running
+      ansible.builtin.service:
+        name: nginx
+        state: started
+        enabled: true
+
+  handlers:
+
+    - name: Test Nginx configuration
+      ansible.builtin.command:
+        cmd: nginx -t
+      changed_when: false
+
+    - name: Restart Nginx
+      ansible.builtin.service:
+        name: nginx
+        state: restarted
